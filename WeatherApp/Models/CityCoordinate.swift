@@ -9,6 +9,8 @@
 
 struct CityCoordinate: Equatable {
     let cityName: String
+    let state: String?
+    let countryCode: String
     let latitude: Double
     let longitude: Double
 }

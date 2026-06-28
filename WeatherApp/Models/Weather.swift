@@ -11,6 +11,8 @@ struct Weather: Equatable {
     let cityName: String
     let temperature: Double
     let feelsLike: Double
+    let minimumTemperature: Double
+    let maximumTemperature: Double
     let humidity: Int
     let windSpeed: Double
     let condition: WeatherCondition

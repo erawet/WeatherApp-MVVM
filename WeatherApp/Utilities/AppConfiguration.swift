@@ -7,6 +7,20 @@
 //  Central location for app configuration values.
 //
 
+import Foundation
+
 enum AppConfiguration {
-    // Later: provide OpenWeather base URLs and API key lookup.
+    static let openWeatherBaseURL = "https://api.openweathermap.org"
+    static let openWeatherIconBaseURL = "https://openweathermap.org/img/wn"
+
+    static var openWeatherAPIKey: String? {
+        guard
+            let apiKey = Bundle.main.object(forInfoDictionaryKey: "OpenWeatherAPIKey") as? String,
+            apiKey.isEmpty == false
+        else {
+            return nil
+        }
+
+        return apiKey
+    }
 }
