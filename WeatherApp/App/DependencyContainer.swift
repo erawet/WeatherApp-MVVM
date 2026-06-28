@@ -8,5 +8,28 @@
 //
 
 struct DependencyContainer {
-    // Later: create services such as API clients, location, persistence, and image loading.
+    func makeWeatherViewModel() -> WeatherViewModel {
+        WeatherViewModel(weatherRepository: makeWeatherRepository())
+    }
+
+    private func makeWeatherRepository() -> WeatherRepository {
+        guard let apiKey = AppConfiguration.openWeatherAPIKey else {
+            return MissingAPIKeyWeatherRepository()
+        }
+
+        let apiClient = URLSessionAPIClient()
+        let geocodingService = OpenWeatherGeocodingAPIService(
+            apiClient: apiClient,
+            apiKey: apiKey
+        )
+        let weatherService = OpenWeatherAPIService(
+            apiClient: apiClient,
+            apiKey: apiKey
+        )
+
+        return OpenWeatherRepository(
+            geocodingService: geocodingService,
+            weatherService: weatherService
+        )
+    }
 }

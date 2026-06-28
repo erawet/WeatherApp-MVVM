@@ -10,7 +10,7 @@
 import SwiftUI
 
 struct WeatherView: View {
-    let viewModel: WeatherViewModel
+    @ObservedObject var viewModel: WeatherViewModel
 
     var body: some View {
         Text("Weather")
@@ -18,5 +18,5 @@ struct WeatherView: View {
 }
 
 #Preview {
-    WeatherView(viewModel: WeatherViewModel())
+    WeatherView(viewModel: WeatherViewModel(weatherRepository: MissingAPIKeyWeatherRepository()))
 }
