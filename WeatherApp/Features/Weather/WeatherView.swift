@@ -18,9 +18,7 @@ struct WeatherView: View {
                 searchSection
 
                 if viewModel.isLoading {
-                    ProgressView("Loading weather...")
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .accessibilityIdentifier("weatherLoadingIndicator")
+                    loadingView
                 }
 
                 if let errorMessage = viewModel.errorMessage {
@@ -61,14 +59,34 @@ struct WeatherView: View {
                 Button {
                     search()
                 } label: {
-                    Text("Search")
-                        .frame(minWidth: 64)
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .frame(width: 64)
+                    } else {
+                        Text("Search")
+                            .frame(minWidth: 64)
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(viewModel.isLoading)
                 .accessibilityIdentifier("citySearchButton")
             }
         }
+    }
+
+    private var loadingView: some View {
+        HStack(spacing: 12) {
+            ProgressView()
+
+            Text("Loading weather...")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityIdentifier("weatherLoadingIndicator")
     }
 
     private func search() {
