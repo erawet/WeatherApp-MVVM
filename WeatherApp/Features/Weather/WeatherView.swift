@@ -37,6 +37,9 @@ struct WeatherView: View {
             .padding()
         }
         .background(Color(.systemBackground))
+        .task {
+            await viewModel.loadLastSearchedCityIfAvailable()
+        }
     }
 
     private var searchSection: some View {
@@ -137,5 +140,10 @@ private struct WeatherDetailRow: View {
 }
 
 #Preview {
-    WeatherView(viewModel: WeatherViewModel(weatherRepository: MissingAPIKeyWeatherRepository()))
+    WeatherView(
+        viewModel: WeatherViewModel(
+            weatherRepository: MissingAPIKeyWeatherRepository(),
+            lastSearchStore: EmptyLastSearchStore()
+        )
+    )
 }

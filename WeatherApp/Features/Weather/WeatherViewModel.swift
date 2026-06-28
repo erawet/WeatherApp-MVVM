@@ -18,10 +18,32 @@ final class WeatherViewModel: ObservableObject {
     @Published private(set) var errorMessage: String?
 
     private let weatherRepository: WeatherRepository
+    private let lastSearchStore: LastSearchStore
+    private var hasLoadedLastSearchedCity = false
 
-    init(weatherRepository: WeatherRepository, initialSearchText: String = "") {
+    init(
+        weatherRepository: WeatherRepository,
+        lastSearchStore: LastSearchStore,
+        initialSearchText: String = ""
+    ) {
         self.weatherRepository = weatherRepository
+        self.lastSearchStore = lastSearchStore
         self.searchText = initialSearchText
+    }
+
+    func loadLastSearchedCityIfAvailable() async {
+        guard hasLoadedLastSearchedCity == false else {
+            return
+        }
+
+        hasLoadedLastSearchedCity = true
+
+        guard let city = lastSearchStore.loadLastSearchedCity() else {
+            return
+        }
+
+        searchText = city
+        await search()
     }
 
     func search() async {
@@ -37,7 +59,10 @@ final class WeatherViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            weather = try await weatherRepository.weather(forCity: city)
+            let fetchedWeather = try await weatherRepository.weather(forCity: city)
+            weather = fetchedWeather
+            searchText = fetchedWeather.cityName
+            lastSearchStore.saveLastSearchedCity(fetchedWeather.cityName)
         } catch {
             weather = nil
             errorMessage = message(for: error)
