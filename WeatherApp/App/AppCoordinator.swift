@@ -19,6 +19,12 @@ final class AppCoordinator {
     }
 
     func start() {
-        // Later: build the Weather screen and set it as the root view controller.
+        let viewModel = dependencies.makeWeatherViewModel()
+        let weatherViewController = WeatherViewController(viewModel: viewModel)
+        let navigationController = UINavigationController(rootViewController: weatherViewController)
+
+        navigationController.navigationBar.prefersLargeTitles = true
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
     }
 }

@@ -10,11 +10,13 @@
 import SwiftUI
 
 struct WeatherView: View {
+    let viewModel: WeatherViewModel
+
     var body: some View {
         Text("Weather")
     }
 }
 
 #Preview {
-    WeatherView()
+    WeatherView(viewModel: WeatherViewModel())
 }
