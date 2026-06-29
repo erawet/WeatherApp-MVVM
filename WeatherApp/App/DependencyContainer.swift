@@ -11,7 +11,8 @@ struct DependencyContainer {
     func makeWeatherViewModel() -> WeatherViewModel {
         WeatherViewModel(
             weatherRepository: makeWeatherRepository(),
-            lastSearchStore: makeLastSearchStore()
+            lastSearchStore: makeLastSearchStore(),
+            locationService: makeLocationService()
         )
     }
 
@@ -38,5 +39,9 @@ struct DependencyContainer {
 
     private func makeLastSearchStore() -> LastSearchStore {
         UserDefaultsLastSearchStore()
+    }
+
+    private func makeLocationService() -> LocationService {
+        CoreLocationService()
     }
 }

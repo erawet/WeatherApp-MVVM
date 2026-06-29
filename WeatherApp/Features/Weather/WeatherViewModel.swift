@@ -19,16 +19,34 @@ final class WeatherViewModel: ObservableObject {
 
     private let weatherRepository: WeatherRepository
     private let lastSearchStore: LastSearchStore
+    private let locationService: LocationService
+    private var hasLoadedInitialWeather = false
     private var hasLoadedLastSearchedCity = false
 
     init(
         weatherRepository: WeatherRepository,
         lastSearchStore: LastSearchStore,
+        locationService: LocationService,
         initialSearchText: String = ""
     ) {
         self.weatherRepository = weatherRepository
         self.lastSearchStore = lastSearchStore
+        self.locationService = locationService
         self.searchText = initialSearchText
+    }
+
+    func loadInitialWeather() async {
+        guard hasLoadedInitialWeather == false else {
+            return
+        }
+
+        hasLoadedInitialWeather = true
+
+        if await loadWeatherForCurrentLocationIfAllowed() {
+            return
+        }
+
+        await loadLastSearchedCityIfAvailable()
     }
 
     func loadLastSearchedCityIfAvailable() async {
@@ -73,6 +91,32 @@ final class WeatherViewModel: ObservableObject {
 
     func clearError() {
         errorMessage = nil
+    }
+
+    private func loadWeatherForCurrentLocationIfAllowed() async -> Bool {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            let coordinate = try await locationService.requestCurrentLocation()
+            let fetchedWeather = try await weatherRepository.weather(
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude
+            )
+            weather = fetchedWeather
+            searchText = fetchedWeather.cityName
+            lastSearchStore.saveLastSearchedCity(fetchedWeather.cityName)
+            isLoading = false
+            return true
+        } catch WeatherAppError.locationPermissionDenied, WeatherAppError.locationUnavailable {
+            isLoading = false
+            return false
+        } catch {
+            weather = nil
+            errorMessage = message(for: error)
+            isLoading = false
+            return true
+        }
     }
 
     private func message(for error: Error) -> String {

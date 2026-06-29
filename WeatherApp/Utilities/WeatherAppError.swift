@@ -14,6 +14,8 @@ enum WeatherAppError: Error, Equatable {
     case invalidResponse
     case serverError(statusCode: Int)
     case decodingFailed
+    case locationPermissionDenied
+    case locationUnavailable
     case unknown
 }
 
@@ -32,6 +34,10 @@ extension WeatherAppError {
             return "The weather service is unavailable right now. Please try again later."
         case .decodingFailed:
             return "We could not read the weather data returned by the service."
+        case .locationPermissionDenied:
+            return "Location permission was not allowed. You can search by city instead."
+        case .locationUnavailable:
+            return "We could not get your current location. Please search by city."
         case .unknown:
             return "Something went wrong. Please try again."
         }

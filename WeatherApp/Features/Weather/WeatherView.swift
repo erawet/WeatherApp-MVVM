@@ -36,7 +36,7 @@ struct WeatherView: View {
         }
         .background(Color(.systemBackground))
         .task {
-            await viewModel.loadLastSearchedCityIfAvailable()
+            await viewModel.loadInitialWeather()
         }
     }
 
@@ -161,7 +161,8 @@ private struct WeatherDetailRow: View {
     WeatherView(
         viewModel: WeatherViewModel(
             weatherRepository: MissingAPIKeyWeatherRepository(),
-            lastSearchStore: EmptyLastSearchStore()
+            lastSearchStore: EmptyLastSearchStore(),
+            locationService: UnavailableLocationService()
         )
     )
 }
