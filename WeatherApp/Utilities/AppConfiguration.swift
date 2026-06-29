@@ -14,10 +14,9 @@ enum AppConfiguration {
     static let openWeatherIconBaseURL = "https://openweathermap.org/img/wn"
 
     static var openWeatherAPIKey: String? {
-        guard
-            let apiKey = Bundle.main.object(forInfoDictionaryKey: "OpenWeatherAPIKey") as? String,
-            apiKey.isEmpty == false
-        else {
+        let apiKey = APIKeys.openWeather.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard apiKey.isEmpty == false, apiKey != "YOUR_OPENWEATHER_API_KEY" else {
             return nil
         }
 
