@@ -7,6 +7,21 @@
 //  Stores downloaded weather icons.
 //
 
+import UIKit
+
 protocol ImageCache {
-    // Later: cache and retrieve images by icon URL or icon name.
+    func image(forKey key: String) -> UIImage?
+    func saveImage(_ image: UIImage, forKey key: String)
+}
+
+final class NSCacheImageCache: ImageCache {
+    private let cache = NSCache<NSString, UIImage>()
+
+    func image(forKey key: String) -> UIImage? {
+        cache.object(forKey: key as NSString)
+    }
+
+    func saveImage(_ image: UIImage, forKey key: String) {
+        cache.setObject(image, forKey: key as NSString)
+    }
 }

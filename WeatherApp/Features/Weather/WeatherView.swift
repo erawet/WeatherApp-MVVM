@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct WeatherView: View {
     @ObservedObject var viewModel: WeatherViewModel
@@ -29,7 +30,10 @@ struct WeatherView: View {
                 }
 
                 if let weather = viewModel.weather {
-                    WeatherSummaryView(weather: weather)
+                    WeatherSummaryView(
+                        weather: weather,
+                        weatherIconImage: viewModel.weatherIconImage
+                    )
                 }
             }
             .padding()
@@ -98,17 +102,24 @@ struct WeatherView: View {
 
 private struct WeatherSummaryView: View {
     let weather: Weather
+    let weatherIconImage: UIImage?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(weather.cityName)
-                    .font(.title)
-                    .fontWeight(.semibold)
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(weather.cityName)
+                        .font(.title)
+                        .fontWeight(.semibold)
 
-                Text(weather.condition.description.capitalized)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    Text(weather.condition.description.capitalized)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                WeatherIconView(image: weatherIconImage)
             }
 
             Text(temperatureText(weather.temperature))
@@ -139,6 +150,25 @@ private struct WeatherSummaryView: View {
     }
 }
 
+private struct WeatherIconView: View {
+    let image: UIImage?
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .accessibilityLabel("Weather icon")
+            } else {
+                ProgressView()
+                    .accessibilityLabel("Loading weather icon")
+            }
+        }
+        .frame(width: 72, height: 72)
+    }
+}
+
 private struct WeatherDetailRow: View {
     let title: String
     let value: String
@@ -162,7 +192,8 @@ private struct WeatherDetailRow: View {
         viewModel: WeatherViewModel(
             weatherRepository: MissingAPIKeyWeatherRepository(),
             lastSearchStore: EmptyLastSearchStore(),
-            locationService: UnavailableLocationService()
+            locationService: UnavailableLocationService(),
+            weatherIconLoader: UnavailableWeatherIconLoader()
         )
     )
 }

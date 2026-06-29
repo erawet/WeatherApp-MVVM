@@ -8,11 +8,14 @@
 //
 
 struct DependencyContainer {
+    private let imageCache = NSCacheImageCache()
+
     func makeWeatherViewModel() -> WeatherViewModel {
         WeatherViewModel(
             weatherRepository: makeWeatherRepository(),
             lastSearchStore: makeLastSearchStore(),
-            locationService: makeLocationService()
+            locationService: makeLocationService(),
+            weatherIconLoader: makeWeatherIconLoader()
         )
     }
 
@@ -43,5 +46,9 @@ struct DependencyContainer {
 
     private func makeLocationService() -> LocationService {
         CoreLocationService()
+    }
+
+    private func makeWeatherIconLoader() -> WeatherIconLoader {
+        OpenWeatherIconLoader(imageCache: imageCache)
     }
 }

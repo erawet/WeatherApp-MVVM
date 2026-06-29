@@ -9,17 +9,20 @@
 
 import Combine
 import Foundation
+import UIKit
 
 @MainActor
 final class WeatherViewModel: ObservableObject {
     @Published var searchText: String
     @Published private(set) var isLoading = false
     @Published private(set) var weather: Weather?
+    @Published private(set) var weatherIconImage: UIImage?
     @Published private(set) var errorMessage: String?
 
     private let weatherRepository: WeatherRepository
     private let lastSearchStore: LastSearchStore
     private let locationService: LocationService
+    private let weatherIconLoader: WeatherIconLoader
     private var hasLoadedInitialWeather = false
     private var hasLoadedLastSearchedCity = false
 
@@ -27,11 +30,13 @@ final class WeatherViewModel: ObservableObject {
         weatherRepository: WeatherRepository,
         lastSearchStore: LastSearchStore,
         locationService: LocationService,
+        weatherIconLoader: WeatherIconLoader,
         initialSearchText: String = ""
     ) {
         self.weatherRepository = weatherRepository
         self.lastSearchStore = lastSearchStore
         self.locationService = locationService
+        self.weatherIconLoader = weatherIconLoader
         self.searchText = initialSearchText
     }
 
@@ -78,11 +83,10 @@ final class WeatherViewModel: ObservableObject {
 
         do {
             let fetchedWeather = try await weatherRepository.weather(forCity: city)
-            weather = fetchedWeather
-            searchText = fetchedWeather.cityName
-            lastSearchStore.saveLastSearchedCity(fetchedWeather.cityName)
+            await applyFetchedWeather(fetchedWeather)
         } catch {
             weather = nil
+            weatherIconImage = nil
             errorMessage = message(for: error)
         }
 
@@ -103,9 +107,7 @@ final class WeatherViewModel: ObservableObject {
                 latitude: coordinate.latitude,
                 longitude: coordinate.longitude
             )
-            weather = fetchedWeather
-            searchText = fetchedWeather.cityName
-            lastSearchStore.saveLastSearchedCity(fetchedWeather.cityName)
+            await applyFetchedWeather(fetchedWeather)
             isLoading = false
             return true
         } catch WeatherAppError.locationPermissionDenied, WeatherAppError.locationUnavailable {
@@ -113,10 +115,19 @@ final class WeatherViewModel: ObservableObject {
             return false
         } catch {
             weather = nil
+            weatherIconImage = nil
             errorMessage = message(for: error)
             isLoading = false
             return true
         }
+    }
+
+    private func applyFetchedWeather(_ fetchedWeather: Weather) async {
+        weather = fetchedWeather
+        weatherIconImage = nil
+        searchText = fetchedWeather.cityName
+        lastSearchStore.saveLastSearchedCity(fetchedWeather.cityName)
+        weatherIconImage = try? await weatherIconLoader.icon(named: fetchedWeather.condition.iconName)
     }
 
     private func message(for error: Error) -> String {
