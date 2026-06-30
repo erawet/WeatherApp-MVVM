@@ -38,7 +38,7 @@ struct WeatherView: View {
             }
             .padding()
         }
-        .background(Color(.systemBackground))
+        .background(Color(.lightGray))
         .task {
             await viewModel.loadInitialWeather()
         }
