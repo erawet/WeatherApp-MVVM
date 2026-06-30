@@ -44,6 +44,7 @@ final class CoreLocationService: NSObject, LocationService {
             throw WeatherAppError.locationPermissionDenied
         }
 
+        // Bridge CoreLocation's delegate callback into async/await for one current-location request.
         return try await withCheckedThrowingContinuation { continuation in
             guard locationContinuation == nil else {
                 continuation.resume(throwing: WeatherAppError.locationUnavailable)
@@ -62,6 +63,7 @@ final class CoreLocationService: NSObject, LocationService {
             return status
         }
 
+        // Store the continuation until CoreLocation reports the user's permission choice.
         return await withCheckedContinuation { continuation in
             authorizationContinuation = continuation
             locationManager.requestWhenInUseAuthorization()

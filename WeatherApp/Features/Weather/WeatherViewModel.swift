@@ -47,6 +47,7 @@ final class WeatherViewModel: ObservableObject {
 
         hasLoadedInitialWeather = true
 
+        // Prefer current-location weather on launch; fall back to the last searched city when location is unavailable.
         if await loadWeatherForCurrentLocationIfAllowed() {
             return
         }
